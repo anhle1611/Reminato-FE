@@ -1,0 +1,14 @@
+.App {
+    font-family: sans-serif;
+    text-align: center;
+}
+
+.ant-btn-primary {
+    background-color: #13c2c2;
+    border-color: #13c2c2;
+}
+
+.ant-btn-primary:hover {
+    background-color: #08979c;
+    border-color: #08979c;
+}
