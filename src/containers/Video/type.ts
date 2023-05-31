@@ -2,15 +2,17 @@ export type Video = {
     id: number,
     title: string,
     url: string,
-    like: string,
-    dislike: string,
+    like: number,
+    dislike: number,
     description: string,
     user_share: { name: string },
-    likes: Array<object>
+    likes: userLike[]
 };
 
+type userLike = {id: number, name: string, category: number}
 export interface IVideoState {
     videos: Array<Video>;
     totaPage: number,
-    totalObjects: number
+    totalObjects: number,
+    popupCreate: boolean
 }

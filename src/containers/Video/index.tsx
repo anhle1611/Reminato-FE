@@ -6,20 +6,22 @@ import InfiniteScroll from 'react-infinite-scroll-component';
 import { useAppDispatch, useAppSelector } from '../../hook';
 import { loadListVideo } from './slice';
 import { Video } from './Video';
+import { ModalCreate } from './ModalShare';
 
 import './style.css'
 
 
 export function VideoPage() {
     const navigate = useNavigate();
-    const userLoggin = useAppSelector((state) => state.authentication.userLogin);
+    const userLogin = useAppSelector((state) => state.authentication.userLogin);
     
-    if (!userLoggin) {
+    if (!userLogin) {
         navigate('login');
     }
 
     const dispatch = useAppDispatch();
-    const videoData = useAppSelector((state) => state.video);
+    const videoData = useAppSelector((state) => state.video.videos);
+    const totaPage = useAppSelector((state) => state.video.totaPage);
 
     const [page, setPage] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -29,17 +31,21 @@ export function VideoPage() {
     }, []);
 
     const loadMoreData = () => {
+        console.log("vao day");
+        
         if (loading) {
             return;
         }
+        const nextPage = page+1
         setLoading(true);
-        setPage(page+1)
-        dispatch(loadListVideo({page, limit: 3}))
+        setPage(nextPage);
+        dispatch(loadListVideo({page: nextPage, limit: 3}))
         setLoading(false);
     };
 
     return (
         <>
+        <ModalCreate />
             <div
                 id="scrollableDiv"
                 style={{
@@ -52,18 +58,18 @@ export function VideoPage() {
                 className='box'
             >
             <InfiniteScroll
-                dataLength={videoData.totalObjects}
+                dataLength={videoData.length}
                 next={loadMoreData}
-                hasMore={videoData.totalObjects < 50}
+                hasMore={page < totaPage}
                 loader={<Skeleton avatar paragraph={{ rows: 1 }} active />}
                 endMessage={<Divider plain>It is all, nothing more 🤐</Divider>}
                 scrollableTarget="scrollableDiv"
             >
                 <List
-                dataSource={videoData.videos}
+                dataSource={videoData}
                 renderItem={(item) => (
                     <List.Item key={item.id}>
-                        <Video video={item} />
+                        <Video video={item} user={userLogin} />
                     </List.Item>
                 )}
                 />

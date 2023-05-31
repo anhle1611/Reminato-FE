@@ -10,58 +10,59 @@ import { create, videos, like } from '../../services/video';
 const initialState: IVideoState = { 
 	videos: [],
 	totaPage: 1,
-	totalObjects: 0
+	totalObjects: 0,
+	popupCreate: false
 };
 export const videoSlice = createSlice({
 	name: 'video',
 	initialState,
 	reducers: {
 		loadList: (state, action: PayloadAction<any>) => {
-			const { items, totaPage, totalObjects } = action.payload
+			const { items, total_pages, total_objects } = action.payload.data;
+			const {page} = action.payload.pagination;
 
-			return {
-				videos: [...state.videos, ...items],
-				totaPage,
-				totalObjects
-			};
+			state.videos = page === 1 ? items : [...state.videos, ...items];
+			state.totaPage = total_pages;
+			state.totalObjects = total_objects;
 		},
 		addVideo: (state, action: PayloadAction<Video>) => {
-			return {
-				...state,
-				videos: [action.payload, ...state.videos]
-			};
+			state.videos = [action.payload, ...state.videos]
 		},
 		likeAction: (state, action: PayloadAction<any>) => {
-			const { id, type, name } = action.payload;
+			const { id, category, name, userId, voted } = action.payload;
 
-			return {
-				...state,
-				videos: _.map(state.videos, item => {
-					if(item.id === id) {
-						if(type === 1) {
-							item.like = item.like + 1
-						}else {
-							item.dislike = item.dislike + 1
-						}
-
-						item.likes = [{ name }]
-
-						return item;
+			state.videos = _.map(state.videos, item => {
+				if(item.id === id) {
+					if(category === 1) {
+						item.like = item.like + 1
+						item.dislike = voted ? item.dislike - 1 : item.dislike
 					}else {
-						return item;
+						item.like = voted ? item.like - 1 : item.like
+						item.dislike = item.dislike + 1
 					}
 
-				})
-			};
-		}
+					item.likes = [{ id: userId, category, name }]
+
+					return item;
+				}else {
+					return item;
+				}
+
+			})
+		},
+		openPopupCreate: (state, action: PayloadAction<boolean>) => {
+			state.popupCreate = action.payload;
+		},
 	},
 });
+
+
 
 export const loadListVideo = (pagination: any) => async (dispatch: any) => {
 	try {
 		const res = await videos(pagination);
 		if(res.data.data) {
-			dispatch(loadList(res.data.data));
+			dispatch(loadList({data: res.data.data, pagination}));
 		}
 	} catch (err) {
 		console.log(err)
@@ -75,15 +76,16 @@ export const loadListVideo = (pagination: any) => async (dispatch: any) => {
 
 export const createVideo = (video: any) => async (dispatch: any) => {
 	try {
-		const res = await create(video);
-		dispatch(addVideo(res.data.data));
+		await create(video);
+		dispatch(loadListVideo({page: 1, limit: 3}));
 		dispatch(show({
 			type: "success",
 			title: "Video",
 			content:  "Share video thành công !"
 		}));
-		history.push('/');
+		dispatch(openPopupCreate(false));
 	} catch (err) {
+		console.log(err)
 		dispatch(show({
 			type: "error",
 			title: "Authentication",
@@ -92,10 +94,10 @@ export const createVideo = (video: any) => async (dispatch: any) => {
 	}
 };
 
-export const likeVideo = (like: any) => async (dispatch: any) => {
+export const likeVideo = (liked: any) => async (dispatch: any) => {
 	try {
-		await like(like);
-		dispatch(likeAction(like));
+		await like(liked);
+		dispatch(likeAction(liked));
 		dispatch(show({
 			type: "success",
 			title: "Video",
@@ -110,6 +112,6 @@ export const likeVideo = (like: any) => async (dispatch: any) => {
 		}));
 	}
 };
-export const { loadList, addVideo, likeAction } = videoSlice.actions;
+export const { loadList, addVideo, likeAction, openPopupCreate } = videoSlice.actions;
 export const selectVideos = (state: RootState) => state.video;
 export const videoReducer = videoSlice.reducer;

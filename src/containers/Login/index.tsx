@@ -10,7 +10,7 @@ import styles  from './style.module.css'
 export function LoginPage() {
 
     const dispatch = useAppDispatch();
-    console.log(isAuthenticated())
+    
     if (isAuthenticated()) {
         return <Navigate to="/" />;
     }
@@ -20,7 +20,12 @@ export function LoginPage() {
     };
 
     return (
-            <Card hoverable={true} title="Authentication" className={styles.login_card} style={{ width: '500px', top: '30%'}}>
+            <Card 
+                hoverable={true} 
+                title="Authentication" 
+                className={styles.login_card} 
+                style={{ width: '500px', top: '30%'}}
+            >
                 <Form
                     name="basic"
                     labelCol={{ span: 8 }}

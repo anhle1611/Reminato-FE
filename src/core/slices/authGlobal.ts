@@ -1,19 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { logout, login, register, getUser, getAccessToken, getRefreshToken } from '../../services/auth';
 import { RootState } from '../../store';
-import { history } from '../../utils/history';
 import { show } from '../../core/slices/messageGlobal';
+import { userState } from '../interfaces/auth';
 
 
 export interface IAuthentication {
   isProcessingRequest: boolean;
   accessToken?: string | null;
   refreshToken?: string | null;
-  userLogin?:string | null
+  userLogin:userState | null
 }
 const initialState: IAuthentication = { 
     isProcessingRequest: false,
-    userLogin: JSON.parse(getUser() || ""),
+    userLogin: getUser() || null,
     accessToken: getAccessToken() || "",
     refreshToken: getRefreshToken() || ""
 };

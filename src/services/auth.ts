@@ -1,4 +1,5 @@
 import axios from "axios";
+import moment from "moment";
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -67,17 +68,43 @@ export const isAuthenticated = (): boolean => {
 
 export const setTokens = (authRes: any) => {
     localStorage.setItem('user', JSON.stringify(authRes));
-    localStorage.setItem('access_token', JSON.stringify(authRes.access_token));
-    localStorage.setItem('refresh_token', JSON.stringify(authRes.refresh_token));
 };
   
 export const removeTokens = () => {
     localStorage.removeItem('user');
-    localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
 };
 
-export const getUser = () => localStorage.getItem('user');
 export const setUser = (user: any) => localStorage.setItem('user', JSON.stringify(user));
-export const getAccessToken = () => localStorage.getItem('access_token')?.slice(1, -1);
-export const getRefreshToken = () => localStorage.getItem('refresh_token');
+
+export const getUser = () => {
+    const user = localStorage.getItem('user');
+    if(user) {
+        const userJson = JSON.parse(user);
+        if(moment().isSameOrBefore(userJson.expires_on)) return userJson;
+    }
+
+    removeTokens();
+    return null;
+};
+
+export const getAccessToken = () => {
+    const user = localStorage.getItem('user');
+    if(user) {
+        const userJson = JSON.parse(user);
+        if(moment().isSameOrBefore(userJson.expires_on)) return userJson.access_token;
+    }
+
+    removeTokens();
+    return null;
+};
+
+export const getRefreshToken = () => {
+    const user = localStorage.getItem('user');
+    if(user) {
+        const userJson = JSON.parse(user);
+        if(moment().isSameOrBefore(userJson.expires_on)) return userJson.refresh_token;
+    }
+
+    removeTokens();
+    return null;
+};

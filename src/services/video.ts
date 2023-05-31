@@ -6,7 +6,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const route = {
    VIDEOS: `${API_URL}/videos`,
-   CRATE_VIDEO: `${API_URL}/videos`,
+   CREATE_VIDEO: `${API_URL}/videos`,
    LIKE_ACTION: `${API_URL}/videos/:id/like/action`
 }
 
@@ -37,9 +37,9 @@ export const videos = (params: PanigationPayload) => {
 };
 
 export const create = (video: CreatePayload) => {
-    return axios.post(route.CRATE_VIDEO, { video }, { headers });
+    return axios.post(route.CREATE_VIDEO, { video }, { headers });
 };
 
 export const like = ({id, category}: LikePayload) => {
-    return axios.post(route.CRATE_VIDEO.replace('/:id/', `/${id}/`), { category }, { headers });
+    return axios.put(route.LIKE_ACTION.replace('/:id/', `/${id}/`), { category }, { headers });
 };
