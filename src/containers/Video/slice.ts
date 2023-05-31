@@ -1,61 +1,115 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { login } from '../../services/auth';
 import { RootState } from '../../store';
 import { history } from '../../utils/history';
 import { show } from '../../core/slices/messageGlobal';
+import { IVideoState, Video } from './type';
+import _ from 'lodash'
+import { create, videos, like } from '../../services/video';
 
 
-export interface IAuthentication {
-  isProcessingRequest: boolean;
-  accessToken?: string | null;
-  refreshToken?: string | null;
-  userLogin?:string | null
-}
-const initialState: IAuthentication = { isProcessingRequest: false };
-export const authenticationSlice = createSlice({
-	name: 'authentication',
+const initialState: IVideoState = { 
+	videos: [],
+	totaPage: 1,
+	totalObjects: 0
+};
+export const videoSlice = createSlice({
+	name: 'video',
 	initialState,
 	reducers: {
-		success: (state, action: PayloadAction<any>) => {
-			console.log(action.payload)
+		loadList: (state, action: PayloadAction<any>) => {
+			const { items, totaPage, totalObjects } = action.payload
+
 			return {
-				...state,
-				userLogin: action.payload,
-				accessToken: action.payload.accessToken || null,
-				refreshToken: action.payload.refreshToken || null,
-				isProcessingRequest: false,
+				videos: [...state.videos, ...items],
+				totaPage,
+				totalObjects
 			};
 		},
-		error: (state) => {
+		addVideo: (state, action: PayloadAction<Video>) => {
 			return {
 				...state,
-				userLogin: null,
-				accessToken: null,
-				refreshToken: null,
-				isProcessingRequest: false,
+				videos: [action.payload, ...state.videos]
 			};
 		},
+		likeAction: (state, action: PayloadAction<any>) => {
+			const { id, type, name } = action.payload;
+
+			return {
+				...state,
+				videos: _.map(state.videos, item => {
+					if(item.id === id) {
+						if(type === 1) {
+							item.like = item.like + 1
+						}else {
+							item.dislike = item.dislike + 1
+						}
+
+						item.likes = [{ name }]
+
+						return item;
+					}else {
+						return item;
+					}
+
+				})
+			};
+		}
 	},
 });
-export const authenticateUser = (userData: any) => async (dispatch: any) => {
+
+export const loadListVideo = (pagination: any) => async (dispatch: any) => {
 	try {
-		const authData = await login(userData);
-		dispatch(success(authData));
-		dispatch(show({
-			type: "success",
-			title: "Authentication",
-			content:  "Xác thực người dùng thành công !"
-		}));
-		history.push('/');
+		const res = await videos(pagination);
+		if(res.data.data) {
+			dispatch(loadList(res.data.data));
+		}
 	} catch (err) {
-		dispatch(error());
+		console.log(err)
 		dispatch(show({
 			type: "error",
-			title: "Authentication",
-			content:  "Xác thực người dùng không thành công !"
+			title: "Video",
+			content:  "Có lỗi xảy ra khi load video !"
 		}));
 	}
 };
-export const { success, error } = authenticationSlice.actions;
-export const selectAuthentication = (state: RootState) => state.authentication;
-export const authenticationReducer = authenticationSlice.reducer;
+
+export const createVideo = (video: any) => async (dispatch: any) => {
+	try {
+		const res = await create(video);
+		dispatch(addVideo(res.data.data));
+		dispatch(show({
+			type: "success",
+			title: "Video",
+			content:  "Share video thành công !"
+		}));
+		history.push('/');
+	} catch (err) {
+		dispatch(show({
+			type: "error",
+			title: "Authentication",
+			content:  "Share video không thành công !"
+		}));
+	}
+};
+
+export const likeVideo = (like: any) => async (dispatch: any) => {
+	try {
+		await like(like);
+		dispatch(likeAction(like));
+		dispatch(show({
+			type: "success",
+			title: "Video",
+			content:  "Bạn đã like video!"
+		}));
+		history.push('/');
+	} catch (err) {
+		dispatch(show({
+			type: "error",
+			title: "Video",
+			content:  "Có lỗi xảy ra!"
+		}));
+	}
+};
+export const { loadList, addVideo, likeAction } = videoSlice.actions;
+export const selectVideos = (state: RootState) => state.video;
+export const videoReducer = videoSlice.reducer;

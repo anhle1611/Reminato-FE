@@ -1,0 +1,11 @@
+.box ul {
+    overflow: auto;
+    overflow: -moz-scrollbars-none;
+    -ms-overflow-style: none;
+    margin-right: -20px;
+}
+
+.box::-webkit-scrollbar { 
+    width: 0 !important;
+    display: none; 
+}

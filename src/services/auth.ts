@@ -4,7 +4,7 @@ const API_URL = import.meta.env.VITE_API_URL;
 
 const route = {
    LOGIN: `${API_URL}/auth/login`,
-   REGISTER: `${API_URL}/auth/register`,
+   REGISTER: `${API_URL}/users`,
    LOGOUT: `${API_URL}/auth/logout`
 }
 
@@ -24,7 +24,7 @@ export interface RegisterPayload {
 }
 
 export const register = (newUser: RegisterPayload) => {
-    return axios.post(route.REGISTER, newUser, { headers });
+    return axios.post(route.REGISTER, {user: newUser}, { headers });
 };
 
 export const login = (user: AuthPayload) => {
@@ -43,45 +43,41 @@ export const login = (user: AuthPayload) => {
 };
 
 export const logout = () => {
-    return axios.delete(route.LOGOUT)
-        .then((response) => {
-            if (response.data.accessToken) {
-                localStorage.removeItem("user");
-            }
-
-            return response;
-        });
+    removeTokens();
+    return axios.delete(route.LOGOUT, { 
+        headers: { ...headers, ...authHeader()},
+    });
 };
 
 export const authHeader = () => {
     const user = JSON.parse(localStorage.getItem('user')|| "");
   
     if (user && user.accessToken) {
-        return { 'x-access-token': user.access_token };
+        return { 'Authorization': `Bearer ${user.access_token}` };
     } else {
         return {};
     }
 }
 
 export const isAuthenticated = (): boolean => {
+    
     return getAccessToken() ? true : false;
 };
   
 
 export const setTokens = (authRes: any) => {
     localStorage.setItem('user', JSON.stringify(authRes));
-    localStorage.setItem('token', JSON.stringify(authRes.token));
-    localStorage.setItem('refreshToken', JSON.stringify(authRes.refreshToken));
+    localStorage.setItem('access_token', JSON.stringify(authRes.access_token));
+    localStorage.setItem('refresh_token', JSON.stringify(authRes.refresh_token));
 };
   
 export const removeTokens = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
-    localStorage.removeItem('token');
 };
 
 export const getUser = () => localStorage.getItem('user');
 export const setUser = (user: any) => localStorage.setItem('user', JSON.stringify(user));
-export const getAccessToken = () => localStorage.getItem('token')?.slice(1, -1);
+export const getAccessToken = () => localStorage.getItem('access_token')?.slice(1, -1);
 export const getRefreshToken = () => localStorage.getItem('refresh_token');

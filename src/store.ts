@@ -1,13 +1,14 @@
 import { configureStore } from '@reduxjs/toolkit';
 
-import { authenticationReducer } from './containers/Login/slice';
-
+import { authenticationReducer } from './core/slices/authGlobal';
 import { messageReducer } from './core/slices/messageGlobal';
+import { videoReducer } from './containers/Video/slice';
 
 export const store = configureStore({
 	reducer: {
 		authentication: authenticationReducer,
-		message: messageReducer
+		message: messageReducer,
+		video: videoReducer
 	},
 });
 

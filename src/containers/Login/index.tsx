@@ -3,14 +3,14 @@ import { Navigate  } from 'react-router-dom';
 import { Card, Form, Input, Button, } from 'antd';
 
 import { isAuthenticated } from '../../services/auth';
-import { authenticateUser } from './slice';
+import { authenticateUser } from '../../core/slices/authGlobal';
 
 import styles  from './style.module.css'
 
 export function LoginPage() {
 
     const dispatch = useAppDispatch();
-
+    console.log(isAuthenticated())
     if (isAuthenticated()) {
         return <Navigate to="/" />;
     }

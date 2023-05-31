@@ -3,8 +3,7 @@ import { Navigate  } from 'react-router-dom';
 import { Card, Form, Input, Button, } from 'antd';
 
 import { isAuthenticated } from '../../services/auth';
-import { registerUser } from './slice';
-
+import { registerUser } from '../../core/slices/authGlobal';
 import styles  from './style.module.css'
 
 export function RegisterPage() {

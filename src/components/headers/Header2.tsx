@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
-import { AppstoreOutlined, MailOutlined, SettingOutlined } from '@ant-design/icons';
+import { AppstoreOutlined, MailOutlined, SettingOutlined, UserOutlined, HomeOutlined } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { Menu } from 'antd';
+import { Menu, Avatar } from 'antd';
+
+import { logoutUser } from '../../core/slices/authGlobal';
+import { useAppDispatch } from '../../hook';
 
 const items: MenuProps['items'] = [
     {
-        label: 'Navigation One',
-        key: 'mail',
+        label: 'Home',
+        key: 'home',
         icon: <MailOutlined />,
     },
     {
@@ -61,6 +64,8 @@ const items: MenuProps['items'] = [
 ];
 
 const App: React.FC = () => {
+    const dispatch = useAppDispatch();
+
     const [current, setCurrent] = useState('mail');
 
     const onClick: MenuProps['onClick'] = (e) => {
@@ -68,14 +73,23 @@ const App: React.FC = () => {
         setCurrent(e.key);
     };
 
+    const logOut: MenuProps['onClick'] = () => {
+        dispatch(logoutUser());
+    }
+
     return (
         <Menu 
             theme="dark"
             onClick={onClick} 
-            selectedKeys={[current]}
-            defaultSelectedKeys={['2']} 
+            selectedKeys={[current]} 
+            defaultSelectedKeys={['home']} 
             mode="horizontal" 
-            items={items} />
+            style={{ display: 'block', width: '100%' }}
+        >
+            <Menu.Item key="home" style={{ float: 'left' }}icon={<HomeOutlined />}>Home</Menu.Item>
+            <Menu.Item key="logout" style={{ float: 'right' }} onClick={logOut}>Logout</Menu.Item>
+            <Menu.Item key="avatar" style={{ float: 'right' }}><Avatar style={{ backgroundColor: '#87d068' }} icon={<UserOutlined />} /></Menu.Item>
+        </Menu>
     );
 };
 
