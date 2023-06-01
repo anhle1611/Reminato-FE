@@ -15,16 +15,16 @@ export function Video({ video, user }: {video: Video, user: userState}) {
     const dispatch = useAppDispatch();
 
     const onLike = () => {
-        if(video.likes.length == 0 || (video.likes.length > 0  && video.likes[0].category == 2)){
-            const voted = video.likes.length > 0 ? true : false;
+        if(!video.user_like || (video.user_like && video.like_category == 2)){
+            const voted = video.user_like ? true : false;
             dispatch(likeVideo({id: video.id, category: 1, userId: user.uid, name: user.name, voted}))
         }
         
     }
 
     const onDisLike = () => {
-        if(video.likes.length == 0 || (video.likes.length > 0  && video.likes[0].category == 1)){
-            const voted = video.likes.length > 0 ? true : false;
+        if(video.user_like || (video.user_like && video.like_category == 1)){
+            const voted = video.user_like ? true : false;
             dispatch(likeVideo({id: video.id, category: 2, userId: user.uid, name: user.name, voted}))
         }
     }
@@ -43,18 +43,18 @@ export function Video({ video, user }: {video: Video, user: userState}) {
                     </Row>
                     <Row>
                         <Col span={24}>
-                            share by: <u><i>{video.user_share.name}</i></u>
+                            share by: <u><i>{video.user_share_video}</i></u>
                         </Col>
                     </Row>
                     <Row>
                         <Col span={1}>
-                            <span onClick={onLike}>{video.like} <LikeOutlined style={{color: video.likes.length && video.likes[0].category === 1 ? "#08c" : "black"}} /></span>
+                            <span onClick={onLike}>{video.like} <LikeOutlined style={{color: video.user_like && video.like_category === 1 ? "#08c" : "black"}} /></span>
                         </Col>
                         <Col span={1}>
-                            <span onClick={onDisLike}>{video.dislike} <DislikeOutlined style={{color: video.likes.length && video.likes[0].category === 2 ? "#08c" : "black"}} /></span>
+                            <span onClick={onDisLike}>{video.dislike} <DislikeOutlined style={{color: video.user_like && video.like_category === 2 ? "#08c" : "black"}} /></span>
                         </Col>
                         <Col span={5}>
-                            <span>{video.likes.length ? "Voted" : ""}</span>
+                            <span>{video.user_like ? "Voted" : ""}</span>
                         </Col>
                     </Row>
                     <Row>

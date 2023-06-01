@@ -55,7 +55,6 @@ export const authenticationSlice = createSlice({
 export const authenticateUser = (userData: any) => async (dispatch: any) => {
 	try {
 		const authData = await login(userData);
-        console.log(authData)
 		dispatch(success(authData));
 		dispatch(show({
 			type: "success",

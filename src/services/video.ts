@@ -12,7 +12,6 @@ const route = {
 
 const headers = {
     'Content-Type': 'application/json',
-    'Authorization': `Bearer ${getAccessToken()}`,
     'Accept': 'application/json',
 }
 
@@ -33,13 +32,13 @@ export interface LikePayload {
 }
 
 export const videos = (params: PanigationPayload) => {
-    return axios.get(route.VIDEOS, {params, headers});
+    return axios.get(route.VIDEOS, {params, headers: { ...headers, Authorization: `Bearer ${getAccessToken()}`}});
 };
 
 export const create = (video: CreatePayload) => {
-    return axios.post(route.CREATE_VIDEO, { video }, { headers });
+    return axios.post(route.CREATE_VIDEO, { video }, { headers: { ...headers, Authorization: `Bearer ${getAccessToken()}`} });
 };
 
 export const like = ({id, category}: LikePayload) => {
-    return axios.put(route.LIKE_ACTION.replace('/:id/', `/${id}/`), { category }, { headers });
+    return axios.put(route.LIKE_ACTION.replace('/:id/', `/${id}/`), { category }, { headers: { ...headers, Authorization: `Bearer ${getAccessToken()}`} });
 };

@@ -41,7 +41,8 @@ export const videoSlice = createSlice({
 						item.dislike = item.dislike + 1
 					}
 
-					item.likes = [{ id: userId, category, name }]
+					item.user_like = name;
+					item.like_category = category;
 
 					return item;
 				}else {

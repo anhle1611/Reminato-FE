@@ -5,8 +5,9 @@ export type Video = {
     like: number,
     dislike: number,
     description: string,
-    user_share: { name: string },
-    likes: userLike[]
+    user_share_video: string,
+    user_like: string,
+    like_category: number
 };
 
 type userLike = {id: number, name: string, category: number}

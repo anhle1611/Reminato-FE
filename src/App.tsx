@@ -1,6 +1,7 @@
-import { useEffect }  from 'react'
+import { useEffect, useState }  from 'react'
 import { notification,  } from 'antd';
 import { ArgsProps } from "antd/es/notification/interface";
+import actionCable from 'actioncable';
 
 import { useAppSelector, useAppDispatch } from './hook';
 
@@ -14,6 +15,13 @@ import { VideoPage } from './containers/Video';
 import { LoginPage } from './containers/Login';
 import { RegisterPage } from './containers/Register';
 import { hidden } from './core/slices/messageGlobal';
+import { Video } from './containers/Video/type';
+
+interface NotificationTypes {
+    data: Video
+}
+
+const CABLE_URL = import.meta.env.VITE_CABLE_URL;
 
 function App() {
 
@@ -21,6 +29,7 @@ function App() {
     const [api, contextHolder] = notification.useNotification();
 
     const message = useAppSelector((state) => state.message.message);
+    const userLogin = useAppSelector((state) => state.authentication.userLogin);
     useEffect(() => {
         if(message) {
             const messageShow: ArgsProps = {
@@ -45,6 +54,32 @@ function App() {
             dispatch(hidden());
         }
     }, [message])
+
+    const cableApp = actionCable.createConsumer(CABLE_URL);
+
+    const [channel, setChannel] = useState<null | actionCable.Channel>(null);
+    useEffect(() => {
+        if (channel !== null) channel.unsubscribe();
+        setChannel(
+            cableApp.subscriptions.create(
+            {
+                channel: 'ShareVideoChannel',
+            },
+            {
+                received: (data: NotificationTypes) => {
+                    if(userLogin) {
+                        console.log(userLogin)
+                        api.warning({
+                            message: "Notification",
+                            description: `New video share: "${data.data.title}"`,
+                            placement: 'topRight',
+                        });
+                    }
+                },
+            },
+            ),
+        );
+    }, []);
     
     return (
         <>
